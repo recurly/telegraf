@@ -4,7 +4,7 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git rev-parse --short HEAD)
 GOFILES ?= $(shell git ls-files '*.go')
 GOFMT ?= $(shell gofmt -l $(filter-out plugins/parsers/influx/machine.go, $(GOFILES)))
-BUILDFLAGS ?= 
+BUILDFLAGS ?=
 
 ifdef GOBIN
 PATH := $(GOBIN):$(PATH)
