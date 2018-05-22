@@ -1,0 +1,49 @@
+DOCKER_REPO = 587175762803.dkr.ecr.us-east-2.amazonaws.com
+GIT_COMMIT = $(shell git rev-parse --short @)
+AWS_REGION ?= us-east-2
+
+docker-clean:
+	@docker rmi $(shell docker images -f "label=app=telegraf-srv" -q) 2>/dev/null ; :
+
+docker-clean-dangling:
+	@docker rmi $(shell docker images -f "label=app=telegraf-srv" -f "dangling=true" -q) 2>/dev/null ; :
+
+build: build-image docker-clean docker-clean-dangling
+build-image:
+	@echo 'building telegraf/telegraf-srv:$(GIT_COMMIT)'
+	docker build -t telegraf/telegraf-srv:latest .
+	docker build -t telegraf/telegraf-srv:$(GIT_COMMIT) .
+tag-version:
+	@echo 'create tag $(GIT_COMMIT)'
+	docker tag telegraf/telegraf-srv:$(GIT_COMMIT) $(DOCKER_REPO)/telegraf-srv:$(GIT_COMMIT)
+
+tag-latest:
+	@echo 'create tag latest'
+	docker tag telegraf/telegraf-srv:$(GIT_COMMIT) $(DOCKER_REPO)/telegraf-srv:latest
+
+tag: tag-version tag-latest
+
+publish-version: tag-version
+	@echo 'publish $(GIT_COMMIT) to $(DOCKER_REPO)'
+	docker push $(DOCKER_REPO)/telegraf-srv:$(GIT_COMMIT)
+
+publish-latest: tag-latest
+	@echo 'publish latest to $(DOCKER_REPO)'
+	docker push $(DOCKER_REPO)/telegraf-srv:latest
+
+publish: repo-login publish-version publish-latest
+
+release-docker: build publish
+
+CMD_REPOLOGIN := "eval $$\( aws ecr --region $(AWS_REGION)"
+ifdef AWS_PROFILE
+	CMD_REPOLOGIN += " --profile $(AWS_PROFILE)"
+endif
+CMD_REPOLOGIN += " get-login --no-include-email \)"
+repo-login:
+	@eval $(CMD_REPOLOGIN)
+
+version:
+	@echo $(GIT_COMMIT)
+
+.PHONY: version build build-latest tag tag-version tag-latest publish publish-version publish-latest release release-docker repo-login build-image

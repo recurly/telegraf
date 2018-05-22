@@ -1,3 +1,4 @@
+include recurly.in
 PREFIX := /usr/local
 VERSION := $(shell git describe --exact-match --tags 2>/dev/null)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
