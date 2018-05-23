@@ -1,17 +1,16 @@
 #!/usr/bin/env groovy
-pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            steps {
-                sh 'make build'
-            }
-        }
-        stage('Release Docker Image') {
-            steps {
-                sh 'make push-latest'
-                sh 'make push-version'
-            }
-        }
+node {
+    properties([buildDiscarder(logRotator(daysToKeepStr: '14'))])
+
+    stage('Checkout') {
+      deleteDir()
+      checkout scm
+    }
+    stage("Build") {
+      echo "Testing and building."
+      sh 'make build'
+    }
+    stage("Release") {
+      sh 'make publish'
     }
 }

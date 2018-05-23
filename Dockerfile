@@ -11,7 +11,9 @@ RUN set -eux; \
         apk update && \
         apk add make git
 
-RUN make all
+RUN make deps && \
+    make test && \
+    make telegraf
 
 ### Metrics container definition.
 FROM alpine
