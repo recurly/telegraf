@@ -1,3 +1,4 @@
+# vi: syntax=make
 DOCKER_REPO = 587175762803.dkr.ecr.us-east-2.amazonaws.com
 GIT_COMMIT = $(shell git rev-parse --short @)
 AWS_REGION ?= us-east-2
@@ -13,6 +14,7 @@ build-image:
 	@echo 'building telegraf/telegraf-srv:$(GIT_COMMIT)'
 	docker build -t telegraf/telegraf-srv:latest .
 	docker build -t telegraf/telegraf-srv:$(GIT_COMMIT) .
+
 tag-version:
 	@echo 'create tag $(GIT_COMMIT)'
 	docker tag telegraf/telegraf-srv:$(GIT_COMMIT) $(DOCKER_REPO)/telegraf-srv:$(GIT_COMMIT)
