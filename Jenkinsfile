@@ -7,12 +7,10 @@ node {
       checkout scm
     }
     stage("Build") {
+      echo "Testing and building."
       sh 'make build'
     }
-    stage("Test") {
-      sh 'make test'
-    }
     stage("Release") {
-      sh 'make test'
+      sh 'make publish'
     }
 }
