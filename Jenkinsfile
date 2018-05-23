@@ -11,11 +11,19 @@ node {
       '''
     }
 
+    stage("Test") {
+       echo "Testing"
+       sh '''
+        export GOPATH="${WORKSPACE}/go"
+        export PATH="${GOPATH}/bin:${PATH}"
+        make deps
+        make test
+       '''
+    }
+
     stage("Build") {
       echo "Testing and building."
       sh '''
-        export GOPATH=${PWD}/go"
-        export PATH="${GOPATH}/bin:${PATH}"
         make build
       '''
     }
