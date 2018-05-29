@@ -4,34 +4,34 @@ GIT_COMMIT = $(shell git rev-parse --short @)
 AWS_REGION ?= us-east-2
 
 docker-clean:
-	@docker rmi $(shell docker images -f "label=app=telegraf-srv" -q) 2>/dev/null ; :
+	@docker rmi $(shell docker images -f "label=app=metrics-collector" -q) 2>/dev/null ; :
 
 docker-clean-dangling:
-	@docker rmi $(shell docker images -f "label=app=telegraf-srv" -f "dangling=true" -q) 2>/dev/null ; :
+	@docker rmi $(shell docker images -f "label=app=metrics-collector" -f "dangling=true" -q) 2>/dev/null ; :
 
 build: build-image docker-clean docker-clean-dangling
 build-image:
-	@echo 'building recurly/telegraf-srv:$(GIT_COMMIT)'
-	docker build -t recurly/telegraf-srv:latest .
-	docker build -t recurly/telegraf-srv:$(GIT_COMMIT) .
+	@echo 'building recurly/metrics-collector:$(GIT_COMMIT)'
+	docker build -t recurly/metrics-collector:latest .
+	docker build -t recurly/metrics-collector:$(GIT_COMMIT) .
 
 tag-version:
 	@echo 'create tag $(GIT_COMMIT)'
-	docker tag recurly/telegraf-srv:$(GIT_COMMIT) $(DOCKER_REPO)/telegraf-srv:$(GIT_COMMIT)
+	docker tag recurly/metrics-collector:$(GIT_COMMIT) $(DOCKER_REPO)/metrics-collector:$(GIT_COMMIT)
 
 tag-latest:
 	@echo 'create tag latest'
-	docker tag recurly/telegraf-srv:$(GIT_COMMIT) $(DOCKER_REPO)/telegraf-srv:latest
+	docker tag recurly/metrics-collector:$(GIT_COMMIT) $(DOCKER_REPO)/metrics-collector:latest
 
 tag: tag-version tag-latest
 
 publish-version: tag-version
 	@echo 'publish $(GIT_COMMIT) to $(DOCKER_REPO)'
-	docker push $(DOCKER_REPO)/telegraf-srv:$(GIT_COMMIT)
+	docker push $(DOCKER_REPO)/metrics-collector:$(GIT_COMMIT)
 
 publish-latest: tag-latest
 	@echo 'publish latest to $(DOCKER_REPO)'
-	docker push $(DOCKER_REPO)/telegraf-srv:latest
+	docker push $(DOCKER_REPO)/metrics-collector:latest
 
 publish: repo-login publish-version publish-latest
 
